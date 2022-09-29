@@ -4,22 +4,24 @@ using UnityEngine;
 
 public class AlignmentScript : MonoBehaviour
 {
-
+    public Transform cameraTransform;
     public Transform target1;
     public Transform target2;
+    public Transform headTransform;
 	public int exercise = 1;
 
-    // Exercise 2
-    float angle2;
-    Vector3 axis2;
-    float tempAngle = 0f;
-	
+    float angle;
+    Vector3 axis;
+    Quaternion offset;
+    Quaternion headOffset;
+
     // Use this for initialization
     void Start ()
     {
-        // Exercise 2
-        transform.rotation.ToAngleAxis(out angle2, out axis2);
-        angle2 = transform.rotation.w;
+        // Exercise 3
+        //offset = target1.rotation * Quaternion.Inverse(transform.rotation); // ex3 p1
+        offset = cameraTransform.rotation * Quaternion.Inverse(transform.rotation); // ex3 p2
+        headOffset = headTransform.rotation * Quaternion.Inverse(transform.rotation); // ex3 p3
     }
 
     void Update()
@@ -38,7 +40,7 @@ public class AlignmentScript : MonoBehaviour
 
             case 3:
             {
-               
+                    ThirdExercise();               
             } break;
 
             case 4:
@@ -73,9 +75,34 @@ public class AlignmentScript : MonoBehaviour
         //   • Use method Quaternion.AngleAxis
         //   • Use method Transform.Rotate
 
-        if (tempAngle <= angle2)
-            tempAngle += 0.1f;
+        offset = transform.rotation * Quaternion.Inverse(target1.rotation);
+        offset.ToAngleAxis(out angle, out axis);
 
-        target1.rotation = Quaternion.AngleAxis(tempAngle, axis2);
+        if (Mathf.Abs(angle) > 0.01f)
+        {
+            target1.Rotate(axis, Mathf.Clamp(angle, -0.1f, 0.1f), Space.World);
+        }
+    }
+
+    private void ThirdExercise()
+    {
+        // 1.
+        // Make target1 follow tracker local rotations, if tracker rotates on the X axis,
+        // target should rotate on it's own X axis.
+
+        //target1.rotation = offset * transform.rotation;
+
+        // 2.
+        // Imagine "tracker" is an HMD tracker, and rotate the camera while keeping the offset.
+
+        cameraTransform.rotation = offset * transform.rotation;
+
+        // 3.
+        // Now we want to apply it also tho the robot's head. But be careful!
+        // The robot's head axis doesn't match the camera axis, we need to rotate
+        // the head on the camera axis, not it's own.
+
+        
+        headTransform.rotation = headOffset * transform.rotation;
     }
 }
