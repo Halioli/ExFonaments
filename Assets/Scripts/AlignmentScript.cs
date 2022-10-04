@@ -21,7 +21,7 @@ public class AlignmentScript : MonoBehaviour
         // Exercise 3
         //offset = target1.rotation * Quaternion.Inverse(transform.rotation); // ex3 p1
         offset = cameraTransform.rotation * Quaternion.Inverse(transform.rotation); // ex3 p2
-        headOffset = headTransform.rotation * Quaternion.Inverse(transform.rotation); // ex3 p3
+        headOffset = headTransform.rotation * Quaternion.Inverse(cameraTransform.rotation); // ex3 p3
     }
 
     void Update()
@@ -102,7 +102,6 @@ public class AlignmentScript : MonoBehaviour
         // The robot's head axis doesn't match the camera axis, we need to rotate
         // the head on the camera axis, not it's own.
 
-        
-        headTransform.rotation = headOffset * transform.rotation;
+        headTransform.rotation = cameraTransform.rotation * headOffset;
     }
 }
