@@ -116,7 +116,22 @@ public class MyQuaternion
     {
         Vector4 result = new Vector4();
 
+        //a* e -b * f - c * g - d * h
+        //+ i(b * e + a * f + c * h - d * g)
+        //+ j(a * g - b * h + c * e + d * f)
+        //+ k(a * h + b * g - c * f + d * e)
 
+
+        // z1 * z2 = a*e - b*f - c*g - d*h + i (b*e + a*f + c*h - d*g) + j (a*g - b*h + c*e + d*f) + k (a*h + b*g - c*f + d*e)
+
+        return result;
+    }
+
+    // == TO ANGLE AXIS
+    public Vector3 ToAngleAxis()
+    {
+        // NOT DONE
+        Vector3 result = new Vector3();
 
         return result;
     }
