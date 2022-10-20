@@ -145,16 +145,11 @@ namespace ENTICourse.IK
             Quaternion rotation = transform.rotation;
 
             //TODO
-            //Solution is every angle
-            float acumAngle = Solution[0];
-
-            for (int i = 1; i < Solution.Length; i++)
+            for (int i = 0; i < Solution.Length; ++i)
             {
-                prevPoint = prevPoint + Joints[i].StartOffset; // create quaternion with rotation from angle and Joints.axis
-
-                acumAngle += Solution[i];
+                rotation = Quaternion.AngleAxis(Solution[i], Joints[i].Axis) * rotation;
+                prevPoint += rotation * Joints[i].StartOffset;
             }
-
 
             // The end of the effector
             return new PositionRotation(prevPoint, rotation);
