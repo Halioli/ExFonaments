@@ -93,9 +93,9 @@ namespace ENTICourse.IK
         void Update()
         {
             // Do we have to approach the target?
-           //TODO
+            //TODO
+            target = Destination.position; // update target vector with target position
 
-           
             if (ErrorFunction(target, Solution) > StopThreshold)
                 ApproachTarget(target);
 
@@ -119,6 +119,8 @@ namespace ENTICourse.IK
             //TODO 
             float gradient = 0;
 
+            // DeltaFa = lim(Deltaa -> 0) * f(a + Deltaa, b, c) - f(a, b, c) / Deltaa
+
             return gradient;
         }
 
@@ -128,6 +130,7 @@ namespace ENTICourse.IK
             Vector3 point = ForwardKinematics(Solution);
 
             Debug.DrawLine(target, point, Color.green); // testing
+            Debug.Log(point);                           // testing
 
             return Vector3.Distance(point, target);
         }
@@ -144,7 +147,6 @@ namespace ENTICourse.IK
             // Takes object initial rotation into account
             Quaternion rotation = transform.rotation;
 
-            //TODO
             for (int i = 0; i < Solution.Length; ++i)
             {
                 rotation = Quaternion.AngleAxis(Solution[i], Joints[i].Axis) * rotation;
