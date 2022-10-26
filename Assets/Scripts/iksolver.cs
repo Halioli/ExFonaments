@@ -118,7 +118,7 @@ public class iksolver : MonoBehaviour {
 		Vector3 vector3 = joints[joints.Length - 1].transform.position - tpos;
 
 		// if target is within reach (within epsilon) then the process is done
-		if () //TODO11
+		/*if () //TODO11
 		{
 			_done = true;
 		}
@@ -126,7 +126,7 @@ public class iksolver : MonoBehaviour {
 		else
 		{
 			_done = false;
-		}
+		}*/
 
 		// the target has moved, reset tries to 0 and change tpos
 		if (targ.transform.position != tpos)
