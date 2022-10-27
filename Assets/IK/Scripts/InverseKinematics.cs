@@ -109,8 +109,14 @@ namespace ENTICourse.IK
         public void ApproachTarget(Vector3 target)
         {
             //TODO
+            for (int i = 0; i < Solution.Length; ++i)
+            {
+                Solution[i] = Solution[i] - (LearningRate * CalculateGradient(target, Solution, i, DeltaGradient));
+            }
 
-           
+            // Update each joint at the end of the iteration
+            for (int i = 0; i < Joints.Length; ++i)
+                Joints[i].SetAngle(Solution[i]);
         }
 
         
@@ -119,7 +125,13 @@ namespace ENTICourse.IK
             //TODO 
             float gradient = 0;
 
-            // DeltaFa = lim(Deltaa -> 0) * f(a + Deltaa, b, c) - f(a, b, c) / Deltaa
+            // DeltaFa = f(a + Deltaa) - f(a) / Deltaa
+
+            Solution[i] += delta;
+            float tempAngle = DistanceFromTarget(target, Solution);
+
+            Solution[i] -= delta;
+            gradient = (tempAngle - DistanceFromTarget(target, Solution)) / delta;
 
             return gradient;
         }
@@ -130,7 +142,6 @@ namespace ENTICourse.IK
             Vector3 point = ForwardKinematics(Solution);
 
             Debug.DrawLine(target, point, Color.green); // testing
-            Debug.Log(point);                           // testing
 
             return Vector3.Distance(point, target);
         }
@@ -143,14 +154,20 @@ namespace ENTICourse.IK
         public PositionRotation ForwardKinematics(float[] Solution)
         {
             Vector3 prevPoint = Joints[0].transform.position;
+            Vector3 nextPoint;
             
             // Takes object initial rotation into account
             Quaternion rotation = transform.rotation;
 
-            for (int i = 0; i < Solution.Length; ++i)
+            for (int i = 0; i < Solution.Length - 1; ++i)
             {
-                rotation = Quaternion.AngleAxis(Solution[i], Joints[i].Axis) * rotation;
-                prevPoint += rotation * Joints[i].StartOffset;
+                rotation = rotation * Quaternion.AngleAxis(Solution[i], Joints[i].Axis);
+
+                nextPoint = prevPoint + rotation * Joints[i + 1].StartOffset;
+
+                Debug.DrawLine(prevPoint, nextPoint, Color.blue); // testing
+
+                prevPoint = nextPoint;
             }
 
             // The end of the effector

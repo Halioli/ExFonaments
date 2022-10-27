@@ -90,13 +90,13 @@ public class iksolver : MonoBehaviour {
 
 					// find the angle between r1 and r2 (and clamp values if needed avoid errors)
 					//theta[i] = TODO6 
-					_theta[i] = Mathf.Acos(_cos[i]);
+					_theta[i] = Mathf.Acos(Mathf.Clamp(_cos[i], -1.0f, 1.0f));
 
                     //Optional. correct angles if needed, depending on angles invert angle if sin component is negative
                     //if (TODO)
                     //	theta[i] = TODO7
                     if (_sin[i] < 0)
-						_sin[i] = -_sin[i];
+						_theta[i] = -_theta[i];
 
 
 					// obtain an angle value between -pi and pi, and then convert to degrees
@@ -115,10 +115,10 @@ public class iksolver : MonoBehaviour {
 
 		// find the difference in the positions of the end effector and the target
 		// TODO10
-		Vector3 vector3 = joints[joints.Length - 1].transform.position - tpos;
+		float dist = Vector3.Distance(joints[joints.Length - 1].transform.position, tpos);
 
 		// if target is within reach (within epsilon) then the process is done
-		/*if () //TODO11
+		if (dist <= _epsilon) //TODO11
 		{
 			_done = true;
 		}
@@ -126,7 +126,7 @@ public class iksolver : MonoBehaviour {
 		else
 		{
 			_done = false;
-		}*/
+		}
 
 		// the target has moved, reset tries to 0 and change tpos
 		if (targ.transform.position != tpos)
