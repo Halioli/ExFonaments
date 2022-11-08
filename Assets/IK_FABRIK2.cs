@@ -16,6 +16,15 @@ public class IK_FABRIK2 : MonoBehaviour
     {
         distances = new float[joints.Length - 1];
         copy = new Vector3[joints.Length];
+
+
+        for (int i = 0; i < joints.Length - 1; i++)
+        {
+            copy[i] = joints[i].position;
+
+            if (i + 1 < joints.Length)
+                distances[i] = Vector3.Distance(joints[i].position, joints[i + 1].position);
+        }
     }
 
     void Update()
@@ -24,13 +33,12 @@ public class IK_FABRIK2 : MonoBehaviour
         for (int i = 0; i < joints.Length - 1; i++)
         {
             copy[i] = joints[i].position;
-
-            if (i + 1 < joints.Length)
-                distances[i] = Vector3.Distance(joints[i].position, joints[i + 1].position);
         }
         //TODO
 
         //done = TODO
+        done = false;
+
         if (!done)
         {
             float targetRootDist = Vector3.Distance(copy[0], target.position);
@@ -39,13 +47,15 @@ public class IK_FABRIK2 : MonoBehaviour
             if (targetRootDist > distances.Sum())
             {
                 // The target is unreachable
-                for (int i = 0; i < copy.Length - 1; i++)
+                for (int i = 1; i < copy.Length - 1; i++)
                 {
                     float rDist = Vector3.Magnitude(target.position - copy[i]);
                     float lambda = distances[i] / rDist;
 
                     copy[i] = (1 - lambda) * copy[i] + lambda * target.position;
                 }
+
+                done = true;
             }
             else
             {
@@ -55,7 +65,7 @@ public class IK_FABRIK2 : MonoBehaviour
                     // STAGE 1: FORWARD REACHING
                     //TODO
                     copy[copy.Length - 1] = target.position;
-                    for (int i = 0; i < copy.Length - 1; i++)
+                    for (int i = copy.Length - 2; i >= 0; i--)
                     {
                         float rDist = Vector3.Magnitude(copy[i + 1] - copy[i]);
                         float lambda = distances[i] / rDist;
@@ -65,20 +75,42 @@ public class IK_FABRIK2 : MonoBehaviour
 
                     // STAGE 2: BACKWARD REACHING
                     //TODO
-                    Vector3 initPos = copy[0];
-                    for (int i = 0; i < copy.Length - 1; i++)
+                    copy[0] = joints[0].position;
+                    for (int i = 1; i < copy.Length - 1; i++)
                     {
+                        float rDist = Vector3.Magnitude(copy[i - 1] - copy[i]);
+                        float lambda = distances[i - 1] / rDist;
 
+                        copy[i] = (1 - lambda) * copy[i - 1] + lambda * copy[i];
                     }
                 }
+
+                done = true;
             }
 
             // Update original joint rotations
             for (int i = 0; i <= joints.Length - 2; i++)
             {
-               //TODO 
-            }          
+                //TODO 
+                Vector3 cross = Vector3.Cross(Vector3.Normalize(joints[i + 1].position - joints[i].position), Vector3.Normalize(copy[i + 1] - copy[i]));
+                float dot = Vector3.Dot(Vector3.Normalize(joints[i + 1].position - joints[i].position), Vector3.Normalize(copy[i + 1] - copy[i]));
+
+                joints[i].Rotate(cross, Mathf.Acos(dot) * Mathf.Rad2Deg, Space.World);
+                //joints[i].position = copy[i];
+            }     
         }
     }
 
+
+    private void OnDrawGizmos()
+    {
+        if (copy == null)
+            return;
+
+        Gizmos.color = Color.red;
+        for (int i = 0; i < copy.Length - 1; i++)
+        {
+            Gizmos.DrawSphere(copy[i], 0.2f);
+        }
+    }
 }
